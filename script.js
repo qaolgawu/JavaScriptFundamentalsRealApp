@@ -99,4 +99,30 @@ const CourseInfo = {
   const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
   
   console.log(result);
+
+  function getLearnerData(course, ag, submissions) {
+    // Find all students 
+    const learners = submissions.filter((submission, index) => submissions.findIndex(s => s.learner_id === submission.learner_id) === index)
+    // Array with result 
+    const taskLearners = learners.map(learner => {
+        // Array with assignment each student 
+        const tasks = submissions.filter(submission => submission.learner_id === learner.learner_id)
+        // return array with acores and max score like [score, max score]
+        const sumAvg = tasks.map((b) => {
+            return [b.submission.score, ag.assignments.find(assignment => assignment.id === b.assignment_id).points_possible]
+        })
+        
+        // Return new student
+        return {
+            // student id
+            learner_id: learner.learner_id, 
+            // Average score for all assignments 
+            avg:sumAvg.map(([a, b]) => +(a / b).toFixed(2)),
+            // Return score per assignment 
+            '<assignment_id>': tasks.map((task, index) => ({id: task.assignment_id, avg: +(sumAvg[index][1] / sumAvg[index][0]).toFixed(2)}))
+        }
+    
+    })
+    return taskLearners
+  }
   
